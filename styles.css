@@ -1,0 +1,1024 @@
+/* ==========================================================================
+   RETRO YOUTUBE — 2008 Skeuomorphic Chrome Extension
+   Transforms modern YouTube into a Web 2.0 classic
+
+   KEY PRINCIPLES (true 2008 aesthetic):
+   • Everything is grey, white, or has a subtle gradient
+   • Buttons have a hard 50/50 gloss split
+   • Links are blue (#0033cc) and underline on hover
+   • Borders everywhere — 1px solid grey
+   • No rounded corners beyond 3-4px
+   • Arial 11-12px is the default font
+   • Square avatars, no circles
+   • No animations, transitions, or ripple effects
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   DESIGN TOKENS
+   -------------------------------------------------------------------------- */
+:root {
+  --retro-bg: #f0f0f0;
+  --retro-bg-dark: #ddd;
+  --retro-bg-content: #fff;
+  --retro-border: #999;
+  --retro-border-light: #ccc;
+  --retro-text: #333;
+  --retro-text-muted: #666;
+  --retro-link: #0033cc;
+  --retro-link-hover: #0066ff;
+  --retro-red: #cc0000;
+  --retro-red-light: #ff4d4d;
+  --retro-red-dark: #990000;
+  --retro-white: #fff;
+  --retro-font: Arial, "Helvetica Neue", Helvetica, sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   1. GLOBAL — Force light grey background, Arial font, no dark mode
+   -------------------------------------------------------------------------- */
+html,
+html[dark],
+html[darker-dark-theme] {
+  --yt-spec-base-background: var(--retro-bg) !important;
+  --yt-spec-raised-background: var(--retro-white) !important;
+  --yt-spec-brand-background-primary: var(--retro-bg) !important;
+  --yt-spec-brand-background-secondary: var(--retro-bg-dark) !important;
+  --yt-spec-general-background-a: var(--retro-bg) !important;
+  --yt-spec-general-background-b: var(--retro-bg-dark) !important;
+  --yt-spec-general-background-c: var(--retro-bg-dark) !important;
+  --yt-spec-menu-background: var(--retro-white) !important;
+  --yt-spec-text-primary: var(--retro-text) !important;
+  --yt-spec-text-secondary: var(--retro-text-muted) !important;
+  --yt-spec-text-primary-inverse: var(--retro-text) !important;
+  --yt-spec-icon-active-other: var(--retro-text) !important;
+  --yt-spec-icon-inactive: var(--retro-text-muted) !important;
+  --yt-spec-badge-chip-background: #e8e8e8 !important;
+  --yt-spec-10-percent-layer: rgba(0, 0, 0, 0.05) !important;
+}
+
+body {
+  background-color: var(--retro-bg) !important;
+  font-family: var(--retro-font) !important;
+  color: var(--retro-text) !important;
+  font-size: 12px !important;
+}
+
+ytd-app,
+#content,
+ytd-browse,
+ytd-search,
+ytd-watch-flexy,
+ytd-page-manager {
+  background-color: var(--retro-bg) !important;
+  font-family: var(--retro-font) !important;
+}
+
+/* Kill modern transitions site-wide (but NOT inside the video player) */
+*:not(.html5-video-player):not(.html5-video-player *):not(.ytp-ce-element):not(.ytp-ce-element *):not(#retro-toast-notification):not(#retro-toast-notification *) {
+  transition-duration: 0s !important;
+}
+
+/* Keep video player and toast animations intact */
+
+/* --------------------------------------------------------------------------
+   2. MASTHEAD / HEADER BAR
+   White bar with hard bottom border — the classic YouTube header
+   -------------------------------------------------------------------------- */
+#masthead-container,
+ytd-masthead,
+#masthead {
+  background: #fff !important;
+  border-bottom: 1px solid #ccc !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Logo — slightly more saturated to match 2008 branding */
+#logo-icon-container,
+ytd-topbar-logo-renderer {
+  filter: saturate(1.3) !important;
+}
+
+/* --------------------------------------------------------------------------
+   3. SEARCH BAR — Classic inset text field + chrome search button
+   YouTube nests multiple containers. Only the INNERMOST form gets
+   the inset border — outer wrappers are stripped clean.
+   -------------------------------------------------------------------------- */
+
+/* ---- STRIP outer wrappers so they don't add extra borders ---- */
+ytd-searchbox,
+ytd-searchbox.ytd-masthead,
+ytd-searchbox #container,
+ytd-searchbox #container.ytd-searchbox {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0 !important;
+}
+
+/* ---- THE FORM itself gets the single inset border ---- */
+.ytSearchboxComponentSearchForm,
+form.ytSearchboxComponentSearchForm,
+ytd-searchbox form {
+  background: #fff !important;
+  border: 2px solid #aaa !important;
+  border-style: inset !important;
+  border-radius: 0 !important;
+  box-shadow: inset 1px 1px 4px rgba(0, 0, 0, 0.22) !important;
+  overflow: hidden !important;
+}
+
+/* ---- INPUT BOX WRAPPER ---- */
+.ytSearchboxComponentInputBox,
+.ytSearchboxComponentInputBoxDarkBackground,
+ytd-searchbox #search-input {
+  background: #fff !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* ---- THE ACTUAL TEXT INPUT ---- */
+.ytSearchboxComponentInput,
+input.ytSearchboxComponentInput,
+ytd-searchbox input#search,
+input#search {
+  background: #fff !important;
+  border: none !important;
+  box-shadow: none !important;
+  font-family: var(--retro-font) !important;
+  font-size: 14px !important;
+  color: #333 !important;
+  padding: 2px 8px !important;
+  outline: none !important;
+  -webkit-appearance: none !important;
+  caret-color: #333 !important;
+}
+
+/* Placeholder — italic grey like 2008 */
+.ytSearchboxComponentInput::placeholder,
+input#search::placeholder {
+  color: #999 !important;
+  font-style: italic !important;
+  font-size: 13px !important;
+}
+
+/* When focused — deeper inset */
+.ytSearchboxComponentSearchForm:focus-within,
+ytd-searchbox[has-focus] #container {
+  border-color: #777 !important;
+  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.28) !important;
+}
+
+/* ---- SEARCH BUTTON — Chrome-plated 50/50 gloss ---- */
+.ytSearchboxComponentSearchButton,
+button.ytSearchboxComponentSearchButton,
+button#search-icon-legacy,
+#search-icon-legacy {
+  background: linear-gradient(to bottom, #f0f0f0 50%, #d0d0d0 50%) !important;
+  border: 1px solid #999 !important;
+  border-style: outset !important;
+  border-left: 1px solid #888 !important;
+  border-radius: 0 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  min-width: 56px !important;
+  cursor: pointer !important;
+  padding: 0 8px !important;
+  margin: 0 !important;
+}
+
+.ytSearchboxComponentSearchButton:hover,
+button#search-icon-legacy:hover {
+  background: linear-gradient(to bottom, #e5e5e5 50%, #c0c0c0 50%) !important;
+}
+
+.ytSearchboxComponentSearchButton:active,
+button#search-icon-legacy:active {
+  background: linear-gradient(to bottom, #c0c0c0 50%, #d0d0d0 50%) !important;
+  border-style: inset !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Search icon color */
+.ytSearchboxComponentSearchButton svg,
+#search-icon-legacy svg,
+.ytSearchboxComponentSearchButtonIcon {
+  color: #555 !important;
+  fill: #555 !important;
+}
+
+/* ---- VOICE / LENS BUTTONS ---- */
+#voice-search-button,
+.ytSearchboxComponentLensButton {
+  background: linear-gradient(to bottom, #f0f0f0 50%, #d0d0d0 50%) !important;
+  border: 1px outset #999 !important;
+  border-radius: 0 !important;
+  margin-left: 4px !important;
+}
+
+/* ---- SEARCH SUGGESTIONS DROPDOWN ---- */
+.ytSearchboxComponentSuggestionsContainer,
+ytd-searchbox .sbdd_b,
+ytd-searchbox [role="listbox"] {
+  background: #fff !important;
+  border: 1px solid #999 !important;
+  border-top: none !important;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25) !important;
+  border-radius: 0 !important;
+  font-family: var(--retro-font) !important;
+  font-size: 12px !important;
+}
+
+/* --------------------------------------------------------------------------
+   4. CHROME-PLATED BUTTONS (50/50 split gradient)
+   THE signature 2008 Web 2.0 button aesthetic
+   IMPORTANT: Exclude .ytp-button (player controls) from these styles
+   -------------------------------------------------------------------------- */
+ytd-button-renderer button:not(.ytp-button),
+yt-button-shape button:not(.ytp-button),
+.yt-spec-button-shape-next:not(.ytp-button),
+tp-yt-paper-button:not(.ytp-button),
+.yt-spec-button-shape-next--mono:not(.ytp-button),
+.yt-spec-button-shape-next--tonal:not(.ytp-button),
+.yt-spec-button-shape-next--filled:not(.ytp-button) {
+  background: linear-gradient(to bottom, #f5f5f5 50%, #ddd 50%) !important;
+  border: 1px outset #aaa !important;
+  border-radius: 3px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+  color: var(--retro-text) !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+  font-family: var(--retro-font) !important;
+  font-weight: bold !important;
+  font-size: 11px !important;
+  padding: 3px 10px !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+}
+
+ytd-button-renderer button:not(.ytp-button):hover,
+yt-button-shape button:not(.ytp-button):hover,
+.yt-spec-button-shape-next:not(.ytp-button):hover,
+tp-yt-paper-button:not(.ytp-button):hover {
+  background: linear-gradient(to bottom, #eee 50%, #d0d0d0 50%) !important;
+  border-color: #888 !important;
+}
+
+ytd-button-renderer button:not(.ytp-button):active,
+yt-button-shape button:not(.ytp-button):active,
+.yt-spec-button-shape-next:not(.ytp-button):active {
+  background: linear-gradient(to bottom, #d5d5d5 50%, #e0e0e0 50%) !important;
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.2) !important;
+  border-style: inset !important;
+}
+
+/* ---- EXCLUSIONS & ICON BUTTONS (Comments, Sort, Hamburger, etc.) ---- */
+/* Completely strip chrome-plated styles from contextual icon-like buttons */
+yt-icon-button,
+ytd-masthead yt-icon-button,
+ytd-comment-view-model button,
+ytd-comment-view-model .yt-spec-button-shape-next,
+tp-yt-paper-button#label,
+tp-yt-paper-button.dropdown-trigger {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  font-family: inherit !important;
+  padding: inherit;
+}
+
+yt-icon-button:hover,
+ytd-comment-view-model button:hover,
+ytd-comment-view-model .yt-spec-button-shape-next:hover,
+tp-yt-paper-button#label:hover,
+tp-yt-paper-button.dropdown-trigger:hover {
+  background: #e8e8e8 !important;
+  border-radius: 2px !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+ytd-comment-view-model button:active,
+ytd-comment-view-model .yt-spec-button-shape-next:active,
+tp-yt-paper-button#label:active,
+tp-yt-paper-button.dropdown-trigger:active {
+  background: #ddd !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   5. GLOSSY RED SUBSCRIBE BUTTON
+   -------------------------------------------------------------------------- */
+#subscribe-button button,
+#subscribe-button yt-button-shape button,
+.yt-spec-button-shape-next--call-to-action,
+ytd-subscribe-button-renderer button,
+tp-yt-paper-button.ytd-subscribe-button-renderer {
+  background: linear-gradient(to bottom, var(--retro-red-light) 50%, var(--retro-red) 50%) !important;
+  border: 1px outset var(--retro-red-dark) !important;
+  border-radius: 3px !important;
+  color: white !important;
+  text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+  font-weight: bold !important;
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  padding: 4px 14px !important;
+}
+
+#subscribe-button button:hover,
+.yt-spec-button-shape-next--call-to-action:hover {
+  background: linear-gradient(to bottom, #ff6666 50%, #dd0000 50%) !important;
+}
+
+/* --------------------------------------------------------------------------
+   6. VIDEO PLAYER — Windows Media Player Style
+   Classic WMP-inspired chrome frame with brushed metal controls
+   -------------------------------------------------------------------------- */
+
+/* Player outer frame — clean light border, NO heavy shadows */
+ytd-player#ytd-player,
+ytd-player {
+  border: 1px solid #bbb !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin-bottom: 10px !important;
+}
+
+/* Remove rounded corners on thumbnails */
+ytd-player img {
+  border-radius: 0 !important;
+}
+
+/* ---- WMP CONTROLS BAR — Brushed Metal Toolbar ---- */
+.ytp-chrome-bottom {
+  background: linear-gradient(to bottom,
+      #e8e8e8 0%,
+      #d8d8d8 20%,
+      #c8c8c8 40%,
+      #d0d0d0 60%,
+      #b8b8b8 80%,
+      #c0c0c0 100%) !important;
+  border-top: 1px solid #aaa !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+  left: 0 !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+
+/* ---- PROGRESS BAR — Thicker classic seek bar ---- */
+.ytp-progress-bar-container {
+  height: 8px !important;
+}
+
+.ytp-progress-bar {
+  height: 6px !important;
+  background: #d0d0d0 !important;
+  border: 1px inset #aaa !important;
+  border-radius: 0 !important;
+}
+
+/* Played portion — WMP blue gradient */
+.ytp-play-progress {
+  background: linear-gradient(to bottom, #4a8de8, #2c5fa1) !important;
+  height: 6px !important;
+}
+
+/* Loaded/buffered portion */
+.ytp-load-progress {
+  background: #c0c0c0 !important;
+  height: 6px !important;
+}
+
+/* Scrubber knob — ROUND chrome circle, raised above the bar */
+.ytp-scrubber-button,
+.ytp-scrubber-container .ytp-scrubber-button {
+  background: radial-gradient(circle at 35% 35%, #fff 0%, #e8e8e8 30%, #bbb 70%, #999 100%) !important;
+  border: 1px solid #888 !important;
+  border-radius: 50% !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+  width: 14px !important;
+  height: 14px !important;
+  margin-top: -4px !important;
+  cursor: pointer !important;
+}
+
+.ytp-scrubber-button:hover,
+.ytp-scrubber-container .ytp-scrubber-button:hover {
+  background: radial-gradient(circle at 35% 35%, #fff 0%, #f0f0f0 30%, #ccc 70%, #aaa 100%) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Volume slider handle — matching round chrome knob */
+.ytp-volume-slider-handle {
+  background: radial-gradient(circle at 35% 35%, #fff 0%, #e8e8e8 30%, #bbb 70%, #999 100%) !important;
+  border: 1px solid #888 !important;
+  border-radius: 50% !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Volume slider track */
+.ytp-volume-slider {
+  background: #ccc !important;
+}
+
+
+
+/* ---- PLAYER BUTTONS — Clean, no rectangles ---- */
+/* Hard reset: strip ALL chrome-plated styles from player buttons */
+.ytp-button,
+button.ytp-button,
+.ytp-play-button,
+.ytp-next-button,
+.ytp-prev-button,
+.ytp-mute-button,
+.ytp-volume-icon,
+.ytp-settings-button,
+.ytp-fullscreen-button,
+.ytp-subtitles-button,
+.ytp-miniplayer-button,
+.ytp-size-button,
+.ytp-autonav-toggle {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  padding: 0 !important;
+  color: #ddd !important;
+  opacity: 0.9 !important;
+}
+
+.ytp-button:hover,
+button.ytp-button:hover,
+.ytp-play-button:hover,
+.ytp-settings-button:hover,
+.ytp-fullscreen-button:hover {
+  color: #fff !important;
+  opacity: 1 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.ytp-volume-area {
+  background: transparent !important;
+}
+
+.ytp-volume-panel {
+  background: transparent !important;
+}
+
+.ytp-volume-panel:hover {
+  background: transparent !important;
+}
+
+.ytp-time-wrapper {
+  background: transparent !important;
+  color: var(--yt-spec-icon-active-other) !important;
+}
+
+.ytp-right-controls {
+  background: transparent !important;
+  color: var(--yt-spec-icon-active-other) !important;
+}
+
+/* Time display — classic readout */
+.ytp-time-display {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-size: 11px !important;
+  color: var(--yt-spec-icon-active-other) !important;
+  text-shadow: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   7. SIDEBAR & NAVIGATION
+   -------------------------------------------------------------------------- */
+tp-yt-app-drawer,
+#guide-inner-content,
+ytd-guide-renderer,
+app-drawer {
+  background: #f5f5f5 !important;
+  border-right: 1px solid #c0c0c0 !important;
+}
+
+ytd-guide-entry-renderer {
+  border-bottom: 1px solid #e0e0e0 !important;
+}
+
+ytd-guide-entry-renderer:hover {
+  background: #e8e8e8 !important;
+}
+
+ytd-mini-guide-renderer {
+  background: #eee !important;
+  border-right: 1px solid #c0c0c0 !important;
+}
+
+/* --------------------------------------------------------------------------
+   8. VIDEO CARDS & THUMBNAILS
+   Classic raised panel with thin border
+   -------------------------------------------------------------------------- */
+ytd-rich-item-renderer,
+ytd-video-renderer,
+ytd-compact-video-renderer,
+ytd-grid-video-renderer {
+  background: var(--retro-white) !important;
+  border: 1px solid #d0d0d0 !important;
+  border-radius: 3px !important;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.06) !important;
+  padding: 5px !important;
+  margin: 5px !important;
+  box-sizing: border-box !important;
+  /* Prevents wrapping from added padding */
+}
+
+yt-lockup-view-model {
+  width: 100% !important;
+}
+
+/* Kill the dynamic "ambient" color background on hover */
+yt-lockup-view-model:hover,
+yt-lockup-metadata-view-model,
+yt-lockup-metadata-view-model:hover,
+ytd-rich-grid-media[is-hovered] {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+yt-lockup-view-model{
+  padding: 10px 5px !important;
+}
+/* Prevent hover preview from expanding and bleeding out of the box */
+#hover-overlays,
+ytd-video-preview,
+#mouseover-overlay,
+ytd-rich-grid-media[is-hovered] #mouseover-overlay {
+  transform: none !important;
+}
+
+ytd-rich-item-renderer,
+ytd-video-renderer,
+ytd-compact-video-renderer {
+  overflow: hidden !important;
+}
+
+ytd-rich-item-renderer:hover,
+ytd-video-renderer:hover,
+ytd-compact-video-renderer:hover {
+  border-color: #999 !important;
+  background: #eef6ff !important;
+  /* Classic retro light blue hover highlight */
+}
+
+/* Video titles — CLASSIC BLUE LINKS */
+#video-title,
+h3.ytd-rich-grid-media a,
+#video-title-link,
+a.yt-simple-endpoint.ytd-video-renderer,
+ytd-rich-grid-media #video-title-link {
+  color: var(--retro-link) !important;
+  text-decoration: none !important;
+  font-family: var(--retro-font) !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+  line-height: 1.3 !important;
+}
+
+#video-title:hover,
+h3.ytd-rich-grid-media a:hover,
+#video-title-link:hover {
+  color: var(--retro-link-hover) !important;
+  text-decoration: underline !important;
+}
+
+/* Channel names — muted grey */
+#channel-name a,
+.ytd-channel-name a,
+yt-formatted-string.ytd-channel-name {
+  color: var(--retro-text-muted) !important;
+  font-size: 11px !important;
+  text-decoration: none !important;
+}
+
+#channel-name a:hover,
+.ytd-channel-name a:hover {
+  text-decoration: underline !important;
+}
+
+/* View count & date metadata */
+#metadata-line span,
+.ytd-video-meta-block span {
+  color: var(--retro-text-muted) !important;
+  font-size: 11px !important;
+}
+
+/* Sidebar playlist panel */
+ytd-playlist-panel-renderer {
+  background: var(--retro-white) !important;
+  border: 1px solid #c0c0c0 !important;
+  border-radius: 3px !important;
+}
+
+ytd-playlist-panel-renderer #header {
+  background: linear-gradient(to bottom, #f0f0f0, #ddd) !important;
+  border-bottom: 1px solid #bbb !important;
+}
+
+/* Duration overlay on thumbnails */
+ytd-thumbnail-overlay-time-status-renderer {
+  background: rgba(0, 0, 0, 0.8) !important;
+  border: 1px solid #444 !important;
+  border-radius: 2px !important;
+  font-family: var(--retro-font) !important;
+  font-size: 10px !important;
+  font-weight: bold !important;
+}
+
+/* --------------------------------------------------------------------------
+   9. COMMENTS — Classic forum-style
+   -------------------------------------------------------------------------- */
+ytd-comments#comments {
+  background: var(--retro-white) !important;
+  border: 1px solid #ccc !important;
+  border-radius: 3px !important;
+  padding: 10px !important;
+  margin-top: 10px !important;
+}
+
+/* Section header */
+ytd-comments-header-renderer {
+  border-bottom: 1px solid #ddd !important;
+  padding-bottom: 8px !important;
+  margin-bottom: 8px !important;
+}
+
+ytd-comment-thread-renderer {
+  border-bottom: 1px dashed #ddd !important;
+  padding-bottom: 8px !important;
+  margin-bottom: 8px !important;
+}
+
+/* Comment author — blue link */
+#author-text {
+  color: var(--retro-link) !important;
+  font-weight: bold !important;
+  font-size: 11px !important;
+  text-decoration: none !important;
+}
+
+#author-text:hover {
+  text-decoration: underline !important;
+}
+
+/* Comment body */
+#content-text {
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+  color: var(--retro-text) !important;
+  font-family: var(--retro-font) !important;
+}
+
+/* Comment input box */
+#simplebox-placeholder,
+#contenteditable-root {
+  background: var(--retro-white) !important;
+  border: 2px inset #aaa !important;
+  font-family: var(--retro-font) !important;
+  font-size: 12px !important;
+}
+
+/* --------------------------------------------------------------------------
+   10. WATCH PAGE — Title, Description, Actions
+   -------------------------------------------------------------------------- */
+h1.ytd-watch-metadata,
+yt-formatted-string.ytd-watch-metadata {
+  font-size: 15px !important;
+  font-weight: bold !important;
+  color: var(--retro-text) !important;
+  font-family: var(--retro-font) !important;
+  line-height: 1.4 !important;
+}
+
+/* Action buttons row spacing */
+#top-level-buttons-computed,
+ytd-menu-renderer.ytd-watch-metadata {
+  gap: 3px !important;
+}
+
+/* Description box — recessed panel */
+#description-inner,
+ytd-text-inline-expander,
+ytd-watch-metadata ytd-text-inline-expander {
+  background: #f8f8f0 !important;
+  border: 1px solid #ccc !important;
+  border-radius: 3px !important;
+  padding: 8px !important;
+  font-size: 12px !important;
+  font-family: var(--retro-font) !important;
+}
+
+/* Channel info below video */
+ytd-video-owner-renderer {
+  padding: 6px 0 !important;
+}
+
+/* --------------------------------------------------------------------------
+   11. CHIPS / FILTER BAR — Tab-style selectors
+   -------------------------------------------------------------------------- */
+yt-chip-cloud-chip-renderer,
+ytd-feed-filter-chip-bar-renderer yt-chip-cloud-chip-renderer {
+  background: linear-gradient(to bottom, #f5f5f5 50%, #ddd 50%) !important;
+  border: 1px outset #aaa !important;
+  border-radius: 3px !important;
+  color: var(--retro-text) !important;
+  font-family: var(--retro-font) !important;
+  font-size: 11px !important;
+  font-weight: bold !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+
+yt-chip-cloud-chip-renderer[selected] {
+  background: linear-gradient(to bottom, #ddd 50%, #c8c8c8 50%) !important;
+  border-style: inset !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+}
+
+yt-chip-cloud-chip-renderer:hover {
+  background: linear-gradient(to bottom, #eee 50%, #d0d0d0 50%) !important;
+}
+
+/* --------------------------------------------------------------------------
+   12. SCROLLBAR — Windows XP Classic
+   -------------------------------------------------------------------------- */
+::-webkit-scrollbar {
+  width: 17px !important;
+}
+
+::-webkit-scrollbar-track {
+  background: #ebebeb !important;
+  border-left: 1px solid #bbb !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to right, #ccc, #bbb, #ccc) !important;
+  border: 1px outset #aaa !important;
+  border-radius: 0 !important;
+  min-height: 40px !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to right, #b8b8b8, #aaa, #b8b8b8) !important;
+}
+
+::-webkit-scrollbar-button:single-button {
+  display: block !important;
+  height: 17px !important;
+  width: 17px !important;
+  background: linear-gradient(to bottom, #f0f0f0, #ddd) !important;
+  border: 1px outset #aaa !important;
+}
+
+/* --------------------------------------------------------------------------
+   13. TOOLTIPS & POPUP MENUS — Yellow tooltip, white popups
+   -------------------------------------------------------------------------- */
+tp-yt-paper-tooltip,
+tp-yt-paper-tooltip .tp-yt-paper-tooltip {
+  background: #ffffe1 !important;
+  border: 1px solid #999 !important;
+  border-radius: 0 !important;
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.25) !important;
+  color: var(--retro-text) !important;
+  font-family: var(--retro-font) !important;
+  font-size: 11px !important;
+  padding: 3px 6px !important;
+  display: none !important;
+}
+
+ytd-menu-popup-renderer,
+tp-yt-iron-dropdown {
+  background: var(--retro-white) !important;
+  border: 1px solid #999 !important;
+  border-radius: 0 !important;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* --------------------------------------------------------------------------
+   14. REMOVE ALL MODERN DESIGN LANGUAGE
+   -------------------------------------------------------------------------- */
+/* Square avatars — circles didn't exist in 2008 YouTube */
+yt-img-shadow,
+#avatar-btn yt-img-shadow,
+yt-img-shadow#avatar,
+yt-img-shadow img {
+  border-radius: 0 !important;
+  border: 1px solid #ccc !important;
+}
+
+/* Kill ripple effects */
+tp-yt-paper-ripple,
+.tp-yt-paper-ripple,
+paper-ripple {
+  display: none !important;
+}
+
+/* Kill pill-shaped badges */
+ytd-badge-supported-renderer .badge-style-type-simple,
+.badge-shape-wiz,
+.badge-shape-wiz--default {
+  border-radius: 2px !important;
+  background: #eee !important;
+  border: 1px solid #ccc !important;
+  font-size: 10px !important;
+}
+
+/* Remove rounded corners from all thumbnails */
+ytd-thumbnail a,
+ytd-thumbnail img,
+yt-image img {
+  border-radius: 0 !important;
+}
+
+/* Force all links to look like classic blue links */
+a.yt-simple-endpoint,
+a.yt-formatted-string {
+  color: var(--retro-link) !important;
+}
+
+a.yt-simple-endpoint:hover,
+a.yt-formatted-string:hover {
+  text-decoration: underline !important;
+}
+
+/* --------------------------------------------------------------------------
+   15. WATCH PAGE STAR RATING BAR (injected by content.js)
+   -------------------------------------------------------------------------- */
+#retro-watch-rating-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0;
+  padding: 5px 10px;
+  background: #f5f5f0;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+}
+
+#retro-watch-rating-bar .retro-star-track {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+#retro-watch-rating-bar .retro-star-track span {
+  font-size: 16px;
+  cursor: pointer;
+}
+
+#retro-watch-rating-bar .retro-star-track span:hover {
+  transform: scale(1.2);
+}
+
+#retro-watch-rating-bar .retro-rating-text {
+  font-size: 11px;
+  color: #666;
+}
+
+#retro-watch-rating-bar .retro-rate-label {
+  font-size: 11px;
+  font-weight: bold;
+  color: #555;
+}
+
+/* --------------------------------------------------------------------------
+   16. TOAST NOTIFICATIONS (injected by content.js)
+   -------------------------------------------------------------------------- */
+#retro-toast-notification {
+  position: fixed;
+  bottom: 44px;
+  right: 20px;
+  z-index: 99999;
+  background: linear-gradient(to bottom, #ffffee, #fff8cc);
+  border: 1px solid #ccaa00;
+  border-radius: 2px;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.25);
+  padding: 8px 14px;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: retroToastSlideIn 0.3s ease-out, retroToastFadeOut 0.4s ease-in 3s forwards;
+  max-width: 320px;
+}
+
+#retro-toast-notification .retro-toast-icon {
+  font-size: 16px;
+}
+
+#retro-toast-notification .retro-toast-text {
+  flex: 1;
+}
+
+#retro-toast-notification .retro-toast-close {
+  cursor: pointer;
+  font-size: 14px;
+  color: #999;
+  font-weight: bold;
+  margin-left: 8px;
+}
+
+#retro-toast-notification .retro-toast-close:hover {
+  color: #333;
+}
+
+@keyframes retroToastSlideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes retroToastFadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   17. FOOTER & LAYOUT SPACING
+   -------------------------------------------------------------------------- */
+#guide-links-primary a,
+#guide-links-secondary a {
+  color: var(--retro-link) !important;
+  font-size: 11px !important;
+  text-decoration: none !important;
+}
+
+#guide-links-primary a:hover,
+#guide-links-secondary a:hover {
+  text-decoration: underline !important;
+}
+
+/* Prevent fixed footer from overlapping content */
+ytd-app>#content {
+  padding-bottom: 36px !important;
+}
+
+/* --------------------------------------------------------------------------
+   18. EXTRA 2008 AUTHENTICITY TOUCHES
+   -------------------------------------------------------------------------- */
+/* Notification bell / avatar buttons in header — flatten */
+ytd-masthead #buttons yt-icon-button,
+ytd-masthead #end #buttons {
+  gap: 2px !important;
+}
+
+/* "Sign in" button — make it a classic button */
+ytd-masthead tp-yt-paper-button#button,
+ytd-masthead a[href*="accounts.google"] {
+  background: linear-gradient(to bottom, #4888e8 50%, #3070d0 50%) !important;
+  border: 1px outset #2060c0 !important;
+  border-radius: 3px !important;
+  color: white !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.3) !important;
+  font-weight: bold !important;
+  font-size: 11px !important;
+  padding: 4px 12px !important;
+}
+
+/* Make all text inputs look like 2008 form fields */
+input[type="text"],
+textarea,
+[contenteditable="true"] {
+  background: var(--retro-white) !important;
+  border: 2px inset #aaa !important;
+  border-radius: 0 !important;
+  font-family: var(--retro-font) !important;
+  font-size: 12px !important;
+}
+
+/* Rich grid — tighter spacing like 2008's grid */
+ytd-rich-grid-renderer #contents {
+  gap: 4px !important;
+}
+
+/* Watch page — tighten secondary column */
+#secondary-inner {
+  padding-top: 0 !important;
+}

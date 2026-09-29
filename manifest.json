@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Retro YouTube",
+  "version": "1.0",
+  "description": "Brings back the 2008 skeuomorphic YouTube look with chrome-plated buttons, glossy subscribe, and classic layout styling.",
+  "icons": {
+    "128": "icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "css": ["styles.css"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["logo.png"],
+      "matches": ["*://*.youtube.com/*"]
+    }
+  ]
+}
